@@ -119,10 +119,10 @@ with st.sidebar:
     st.subheader("Settings")
     st.write("Your Formula 1 Stats Agent. Connect to database and start chatting.")
 
-    st.text_input("Host", value="Sarthaks-MacBook-Air-6.local", key="Host")
+    st.text_input("Host", value="YourHostNameHere", key="Host")
     st.text_input("Port", value="3306", key="Port")
     st.text_input("User", value="root", key="User")
-    st.text_input("Password", type="password", value="Sql@1234", key="Password")
+    st.text_input("Password", type="password", value="YourPassHere", key="Password")
     st.text_input("Database", value="F1", key="Database")
 
     if st.button("Connect"):
