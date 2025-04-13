@@ -1,1 +1,1 @@
-A Formula 1 Stats Agent
+A Formula 1 Stats Chatbot
