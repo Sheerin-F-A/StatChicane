@@ -218,6 +218,7 @@ if not st.session_state.authenticated:
         st.info("Please login or signup from the side bar to use StatChicane.")
 
 if st.session_state.authenticated:
+    # st.session_state.confirm_delete_visible = False  # Removed to preserve UI state after Delete Account button
     if st.sidebar.button("Logout"):
         st.session_state.authenticated = False
         st.success("You have been logged out.")
@@ -225,24 +226,30 @@ if st.session_state.authenticated:
         st.rerun()
     if st.sidebar.button("Delete Account"):
         st.session_state.confirm_delete_visible = True
+        st.session_state.deletion_attempted = False
 
     if st.session_state.get("confirm_delete_visible"):
         st.subheader("Confirm Account Deletion")
         password_input = st.text_input("Re-enter your password to confirm", type="password")
         confirm_checkbox = st.checkbox("I understand this action is irreversible")
 
-        if confirm_checkbox and st.button("Confirm Delete"):
-            if password_input.strip() == st.session_state.password.strip():
-                try:
-                    st.session_state.db.run(f"DELETE FROM User WHERE Username = '{st.session_state.username}'")
-                    st.success("Account deleted successfully.")
-                    st.session_state.authenticated = False
-                    time.sleep(1)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to delete account: {e}")
+        if st.button("Confirm Delete"):
+            st.session_state.deletion_attempted = True
+            if confirm_checkbox:
+                if password_input.strip() == st.session_state.password.strip():
+                    try:
+                        st.session_state.db.run(f"DELETE FROM User WHERE Username = '{st.session_state.username}'")
+                        st.success("Account deleted successfully.")
+                        st.session_state.authenticated = False
+                        st.session_state.confirm_delete_visible = False
+                        time.sleep(1)
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed to delete account: {e}")
+                else:
+                    st.error("Incorrect password.")
             else:
-                st.error("Incorrect password.")
+                st.warning("You must confirm the irreversible action before proceeding.")
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [
             AIMessage(content="Ciao! I'm your assistant. Ask me anything about Formula 1."),
