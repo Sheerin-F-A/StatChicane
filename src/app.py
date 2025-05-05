@@ -1,4 +1,4 @@
-
+from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -15,7 +15,7 @@ import time
 load_dotenv()
 
 # Configure Gemini
-genai.configure(api_key=st.secrets["GEMINI"]["API_KEY"])
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Function to call Gemini model
 def call_gemini_model(prompt_str: str, model_name="models/gemini-1.5-flash"):
