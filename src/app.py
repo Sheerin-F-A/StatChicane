@@ -1,4 +1,4 @@
-#mk3.3
+#mk3.4
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
@@ -251,6 +251,52 @@ if st.session_state.authenticated:
                     st.error("Incorrect password.")
             else:
                 st.warning("You must confirm the irreversible action before proceeding.")
+
+    if st.sidebar.button("Update Info"):
+        st.session_state.show_update_form = True
+
+    if st.session_state.get("show_update_form"):
+        st.subheader("Update Account Information")
+        update_choice = st.radio("Select information to update", ["Email", "Phone Number"])
+
+        if update_choice == "Email":
+            new_email = st.text_input("New Email")
+        else:
+            new_phone = st.text_input("New Phone Number")
+
+        password_input = st.text_input("Enter your password to confirm", type="password")
+
+        if st.button("Confirm Update"):
+            if password_input.strip() != st.session_state.password.strip():
+                st.error("Incorrect password.")
+            else:
+                if update_choice == "Email":
+                    if email_exists(new_email, st.session_state.db):
+                        st.error("Email already exists.")
+                    else:
+                        try:
+                            st.session_state.db.run(
+                                f"UPDATE User SET Email = '{new_email}' WHERE Username = '{st.session_state.username}'"
+                            )
+                            st.success("Email updated successfully.")
+                            st.session_state.authenticated = False
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Failed to update email: {e}")
+                else:
+                    if phone_exists(new_phone, st.session_state.db):
+                        st.error("Phone number already exists.")
+                    else:
+                        try:
+                            st.session_state.db.run(
+                                f"UPDATE User SET Phone_No = '{new_phone}' WHERE Username = '{st.session_state.username}'"
+                            )
+                            st.success("Phone number updated successfully.")
+                            st.session_state.authenticated = False
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Failed to update phone number: {e}")
+
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [
             AIMessage(content="Ciao! I'm your assistant. Ask me anything about Formula 1."),
@@ -280,3 +326,4 @@ if st.session_state.authenticated:
                 st.session_state.chat_history.append(AIMessage(content=response))
             except Exception as e:
                 st.error(f"Failed to generate response: {e}")
+
